@@ -8,6 +8,9 @@ from rest_framework.generics import (
     RetrieveAPIView,
     DestroyAPIView,
     UpdateAPIView,
+    CreateAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
 )
 
 
@@ -31,9 +34,24 @@ class BookUpdateAPIView(UpdateAPIView):
     serializer_class = BookSerializer
 
 
-@api_view(["GET"])
-def book_list_view(request, *args, **kwargs):
-    books = Book.objects.all()
-    serializer = BookSerializer(books, many=True)
+class BookCreateAPIView(CreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
-    return Response(serializer.data)
+
+class BookListCreateAPIView(ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+
+class BookUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+
+# @api_view(["GET"])
+# def book_list_view(request, *args, **kwargs):
+#     books = Book.objects.all()
+#     serializer = BookSerializer(books, many=True)
+
+#     return Response(serializer.data)
