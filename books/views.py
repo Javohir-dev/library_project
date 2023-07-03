@@ -3,6 +3,8 @@ from .models import Book
 from .serializers import BookSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -13,15 +15,49 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
 )
 
+#! first way
+# class BookListAPIView(ListAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
 
-class BookListAPIView(ListAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+
+#! second way
+class BookListAPIView(APIView):
+    def get(self, request):
+        books = Book.objects.all()
+        serializer_data = BookSerializer(books, many=True).data
+        data = {
+            "status": f"Returned {len(books)} books",
+            "books": serializer_data,
+        }
+
+        return Response(data)
 
 
-class BookDetailAPIView(RetrieveAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+# class BookDetailAPIView(RetrieveAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+
+
+class BookDetailAPIView(APIView):
+    def get(self, request, pk):
+        try:
+            book = Book.objects.get(id=pk)
+            serializer_data = BookSerializer(book).data
+            data = {
+                "status": "Successfull",
+                "book": serializer_data,
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception:
+            return Response(
+                {
+                    "status": "Error!",
+                    "message": "This book was not found!",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
 
 class BookDeleteAPIView(DestroyAPIView):
@@ -34,9 +70,20 @@ class BookUpdateAPIView(UpdateAPIView):
     serializer_class = BookSerializer
 
 
-class BookCreateAPIView(CreateAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+# class BookCreateAPIView(CreateAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+
+
+class BookCreateAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = BookSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            data = {"status": "Books created", "books": data}
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class BookListCreateAPIView(ListCreateAPIView):
