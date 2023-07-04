@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import Book
 from .serializers import BookSerializer
 from rest_framework.decorators import api_view
@@ -6,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.generics import (
+    get_object_or_404,
     ListAPIView,
     RetrieveAPIView,
     DestroyAPIView,
@@ -60,14 +60,53 @@ class BookDetailAPIView(APIView):
             )
 
 
-class BookDeleteAPIView(DestroyAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+# class BookDeleteAPIView(DestroyAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
 
 
-class BookUpdateAPIView(UpdateAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+class BookDeleteAPIView(APIView):
+    def delete(self, request, pk):
+        try:
+            book = Book.objects.get(id=pk)
+            book.delete()
+            return Response(
+                {
+                    "status": "True.",
+                    "message": "Successfull deleted.",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except Exception:
+            return Response(
+                {
+                    "status": "Error!",
+                    "message": "This book was not found!",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+# class BookUpdateAPIView(UpdateAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+
+
+class BookUpdateAPIView(APIView):
+    def put(self, request, pk):
+        books = Book.objects.all()
+        book = get_object_or_404(books, id=pk)
+        data = request.data
+        serializer = BookSerializer(instance=book, data=data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            book_saved = serializer.save()
+        return Response(
+            {
+                "status": True,
+                "message": f"Book `{book_saved}` updated Successfully.",
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 # class BookCreateAPIView(CreateAPIView):
