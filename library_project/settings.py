@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # packages
     "rest_framework",
-    "drf_yasg",
+    "rest_framework.authtoken",
+    "dj_rest_auth",
+    "drf_yasg",  # swagger
     # local app
     "books",
 ]
@@ -55,6 +57,16 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "library_project.urls"
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+}
 
 TEMPLATES = [
     {
