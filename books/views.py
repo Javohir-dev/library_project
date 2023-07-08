@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import (
     get_object_or_404,
     ListAPIView,
@@ -131,6 +132,11 @@ class BookListCreateAPIView(ListCreateAPIView):
 
 
 class BookUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+
+class BookViewSet(ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
